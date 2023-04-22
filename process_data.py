@@ -1,16 +1,48 @@
+ 
 import sys
-
+import pandas as pd
+import re
+from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
-    pass
+    messages = pd.read_csv(messages_filepath)
+    categories = pd.read_csv(categories_filepath)
+    df = messages.merge(categories,on='id')
+    return df
 
 
 def clean_data(df):
-    pass
+    s = df['categories'][0]
+    start = ';'
+    end = '-'
+    
+    # split on ';' first and create a list of categories attached to "-"
+    list = s.split(start)
+    
+    # create empty list to be appended with cateogry column names 
+    category_colnames = []
+    
+    for item in list:
+        category_colnames.append(item.split(end)[0])
+    
+    for column in category_colnames:
+        # set each value to be the last character of the string
+        df[column] = df.categories.apply(lambda x: x.split(column+end,1)[1][0])
+        # convert column from string to numeric
+        df[column] = df[column].apply(pd.to_numeric, errors='ignore')
+    
+    # drop the original categories column from `df`
+    df = df.drop(['categories'], axis=1)
+    # removing column with NaNs as all messages have been translated
+    df = df.drop(['original'], axis=1)
+    # removing dupes
+    df = df.drop_duplicates(['id', 'message', 'genre'], keep='first')
+    return df
 
 
 def save_data(df, database_filename):
-    pass  
+    engine = create_engine(database_filename)
+    df.to_sql('Msg_Category', engine, index=False)
 
 
 def main():
