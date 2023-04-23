@@ -1,6 +1,6 @@
- 
 import sys
 import pandas as pd
+import numpy as np
 import re
 from sqlalchemy import create_engine
 
@@ -30,6 +30,10 @@ def clean_data(df):
         df[column] = df.categories.apply(lambda x: x.split(column+end,1)[1][0])
         # convert column from string to numeric
         df[column] = df[column].apply(pd.to_numeric, errors='ignore')
+    
+    # replacing the non-1s with 1
+    a = np.array(df['related'].values)
+    df['related'] = np.where(a > 1, 1, a)
     
     # drop the original categories column from `df`
     df = df.drop(['categories'], axis=1)
