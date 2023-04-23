@@ -40,10 +40,9 @@ def clean_data(df):
     return df
 
 
-def save_data(df, database_filename):
-    engine = create_engine(database_filename)
-    df.to_sql('Msg_Category', engine, index=False)
-
+def save_data(df, database_filepath):
+    engine = create_engine('sqlite:///'+ database_filepath)
+    df.to_sql('Msg_Category', engine, if_exists = 'replace', index=False)
 
 def main():
     if len(sys.argv) == 4:
