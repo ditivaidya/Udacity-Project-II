@@ -5,6 +5,15 @@ import re
 from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
+    '''
+    load_data
+    load messages and categories data from the messages_filepath and categories_filepath file paths
+    Input:
+     messages_filepath - messages csv file path
+     categories_filepath - categories csv file path
+    Output:
+     returns the loaded pandas dataframe
+    '''
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     df = messages.merge(categories,on='id')
@@ -12,6 +21,14 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
+    '''
+    clean_data
+    cleans dataframe 
+    Input:
+     df - unclean pandas dataframe
+    Output:
+     df - preprocessed pandas dataframe
+    '''
     s = df['categories'][0]
     start = ';'
     end = '-'
@@ -47,6 +64,15 @@ def clean_data(df):
 
 
 def save_data(df, database_filepath):
+    '''
+    save_data
+    save cleaned pandas dataframe to SQL Database 
+    Input:
+     df - cleaned pandas dataframe
+     database_filepath - located of database to save to
+    Output:
+     saves processed pandas df to SQL filepath
+    '''
     engine = create_engine('sqlite:///'+ database_filepath)
     df.to_sql('Msg_Category', engine, if_exists = 'replace', index=False)
 

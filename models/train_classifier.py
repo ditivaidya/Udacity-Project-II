@@ -20,6 +20,14 @@ from sklearn.metrics import classification_report
 import pickle
 
 def load_data(database_filepath):
+    '''
+    load_data
+    load database from SQL server
+    Input:
+     database_filepath - SQL database filepath 
+    Output:
+     df - pandas dataframe
+    '''
     engine = create_engine('sqlite:///'+database_filepath)
     df = pd.read_sql('Msg_Category', engine)
     all_cols = df.columns.to_list()
@@ -37,6 +45,14 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
+    '''
+    tokenize
+    normalise words of a sentence by preprocessing it intro individual words.
+    Input:
+     text - A sentence string with disaster message 
+    Output:
+     words: A list of pre-processed words
+    '''
     text = text.lower()
     text = re.sub(r"[^a-zA-Z0-9]", " ", text) 
     words = word_tokenize(text)
@@ -47,6 +63,14 @@ def tokenize(text):
 
 
 def build_model():
+    '''
+    build_model
+    builds a model based on results of the grid search (Please refer to the ML Pipeline file). 
+    This shows how the best parameters were obtained.
+    Input: 
+    Output:
+     suitable model
+    '''
     # Please refer to the  ML Pipieline to see how grid search was used to obtain these parameters
     best_params = {'clf__estimator__C': 3, 'clf__estimator__max_iter': 400}
     pipeline = sklearn.pipeline.Pipeline([('vect', CountVectorizer(tokenizer=tokenize)),
@@ -56,6 +80,17 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    '''
+    evaluate_model
+    evaluates a model and saves a txt file with "Eval.score.txt" 
+    Input: 
+     model - model
+     X_test - test data features
+     Y_test - test data labels (categories)
+     category_names - categories
+    Output:
+     saves text file
+    '''
     Precision = []
     Recall = []
     FScore = []
@@ -83,11 +118,19 @@ def evaluate_model(model, X_test, Y_test, category_names):
         'Accuracy': Acc,
         'F1': FScore
         })
-
-    return Evaluate_1
+    Evaluate_1.to_csv('models/Eval_score.txt', sep='\t', index=False)
 
 
 def save_model(model, model_filepath):
+    '''
+    save_model
+    saves the model to appropriate file path 
+    Input: 
+     model - model
+     model_filepath - model pkl file
+    Output:
+     saves model pickle file
+    '''
     pickle.dump(model, open(model_filepath, 'wb'))
 
 
