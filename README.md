@@ -13,7 +13,7 @@
         `python data/process_data.py data/disaster_messages.csv data/disaster_categories.csv data/DisasterResponse.db`
 ### 4. Models
     - To run ML pipeline that trains classifier and saves
-        `python models/train_classifier.py data/DisasterResponse.db models/classifier.pkl`
+        `python models/train_classifier.py data/DisasterResponse.db models/model.pkl`
         
 ### 5. App
 2. Go to `app` directory: `cd app`
