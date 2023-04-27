@@ -29,7 +29,6 @@ def load_data(database_filepath):
 
     df_X = df[x_cols]
     df_Y = df[y_cols]
-    df_Y = df_Y.drop(['child_alone'], axis=1)
 
     X = df_X.message.values
     y = df_Y.values
@@ -48,7 +47,8 @@ def tokenize(text):
 
 
 def build_model():
-    best_params = {'clf__estimator__C': 1.5, 'clf__estimator__max_iter': 400}
+    # Please refer to the  ML Pipieline to see how grid search was used to obtain these parameters
+    best_params = {'clf__estimator__C': 3, 'clf__estimator__max_iter': 400}
     pipeline = sklearn.pipeline.Pipeline([('vect', CountVectorizer(tokenizer=tokenize)),
                                           ('tfidf', TfidfTransformer()),
                                           ('clf', MultiOutputClassifier(LogisticRegression()))])

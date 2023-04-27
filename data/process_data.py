@@ -41,6 +41,8 @@ def clean_data(df):
     df = df.drop(['original'], axis=1)
     # removing dupes
     df = df.drop_duplicates(['id', 'message', 'genre'], keep='first')
+    # we have removed this category as all labels are 0
+    df = df.drop(['child_alone'], axis=1)
     return df
 
 
