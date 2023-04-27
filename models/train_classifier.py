@@ -1,24 +1,95 @@
 import sys
-
+import pandas as pd
+from sqlalchemy import create_engine
+import re
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem.wordnet import WordNetLemmatizer
+import sklearn
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import train_test_split
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.linear_model import LogisticRegression
+import numpy as np
+from sklearn.model_selection import GridSearchCV
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report
+import pickle
 
 def load_data(database_filepath):
-    pass
+    engine = create_engine('sqlite:///'+database_filepath)
+    df = pd.read_sql('Msg_Category', engine)
+    all_cols = df.columns.to_list()
+    x_cols = all_cols[0:3]
+    y_cols =  all_cols
+    del y_cols[0:3]
+
+    df_X = df[x_cols]
+    df_Y = df[y_cols]
+    df_Y = df_Y.drop(['child_alone'], axis=1)
+
+    X = df_X.message.values
+    y = df_Y.values
+    cats = df_Y.columns.to_list()
+    return X, y, cats
 
 
 def tokenize(text):
-    pass
+    text = text.lower()
+    text = re.sub(r"[^a-zA-Z0-9]", " ", text) 
+    words = word_tokenize(text)
+    words = [w for w in words if w not in stopwords.words("english")]
+    words = [WordNetLemmatizer().lemmatize(w) for w in words]
+    words = [WordNetLemmatizer().lemmatize(w, pos='v') for w in words]
+    return words
 
 
 def build_model():
-    pass
+    best_params = {'clf__estimator__C': 1.5, 'clf__estimator__max_iter': 400}
+    pipeline = sklearn.pipeline.Pipeline([('vect', CountVectorizer(tokenizer=tokenize)),
+                                          ('tfidf', TfidfTransformer()),
+                                          ('clf', MultiOutputClassifier(LogisticRegression()))])
+    return pipeline.set_params(**best_params)
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
-    pass
+    Precision = []
+    Recall = []
+    FScore = []
+    Acc = []
+    y_pred = model.predict(X_test)
+    for i in range(Y_test.shape[1]):
+        report = classification_report(Y_test[:, i], y_pred[:, i], output_dict=True)
+        
+        macro_precision = report['macro avg']['precision']
+        Precision.append(macro_precision)
+        
+        macro_recall = report['macro avg']['recall']
+        Recall.append(macro_recall)
+        
+        macro_f1_score = report['macro avg']['f1-score']
+        FScore.append(macro_f1_score)
+
+        accuracy = report['accuracy']
+        Acc.append(accuracy)
+    
+    Evaluate_1 = pd.DataFrame(
+        {'Category': category_names,
+        'Precision' : Precision,
+        'Recall' : Recall,
+        'Accuracy': Acc,
+        'F1': FScore
+        })
+
+    return Evaluate_1
 
 
 def save_model(model, model_filepath):
-    pass
+    pickle.dump(model, open(model_filepath, 'wb'))
+
 
 
 def main():
@@ -26,7 +97,7 @@ def main():
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.33, random_state=43)
         
         print('Building model...')
         model = build_model()
