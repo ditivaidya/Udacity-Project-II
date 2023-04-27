@@ -1,9 +1,12 @@
 # Udacity-Project-II - The Disaster Response Pipeline Summary
 
 ## Introduction:
+
 The Disaster Response tool was built to classify real messages that were sent during disaster events into topic categories. The topic categories range from "Food" and "Shelter" to "Aid Help" and various other categories.
 
-## Contents:
+
+## Repository Contents:
+
 ### 1. ETL Pipeline
 "ETL Pipeline Preparation.ipynb" - This is the python notebook that was used to form the "process_data.py". It explains how the data was cleaned.
 
@@ -28,6 +31,7 @@ This folder contains the following files:
                 - master.html # main page of web app
                 - go.html # classification result page of web app
         - run.py # Flask file that runs app
+
 
 ## Instructions:
 1. Run the following commands in the project's root directory to set up your database and model.
