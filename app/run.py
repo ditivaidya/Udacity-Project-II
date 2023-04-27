@@ -16,6 +16,15 @@ from sqlalchemy import create_engine
 app = Flask(__name__)
 
 def tokenize(text):
+    '''
+    tokenize
+    normalise words of a sentence by preprocessing it intro individual words.
+     Input:
+     text - A sentence string with disaster message 
+     Output:
+     clean_tokens: A list of pre-processed words
+    '''
+    text = text.lower()
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
 
@@ -43,6 +52,8 @@ def index():
     # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
+    disaster_cats = df.iloc[:,3:].sum()
+    cats_names = df.iloc[:,3:].columns.to_list()
     
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
@@ -64,6 +75,26 @@ def index():
                     'title': "Genre"
                 }
             }
+        },
+        {
+            'data': [
+                Bar(
+                    x=disaster_cats,
+                    y=cats_names
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Disaster Topic Categories',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Disaster Topic Category"
+                }
+            }
+        
+        
         }
     ]
     
